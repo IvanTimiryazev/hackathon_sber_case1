@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  title: TestnetAPI
+  description: |-
+  version: 0.1.0
+servers:
+  - url: /api/v1
+  - url: /api/v1/user
+  - url: /api/v1/recruit
+paths:
+  /register:
+    post:
+      description: Register new user into database
+      tags:
+        - Authorization
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: "awesomecat@meow.com"
+                password:
+                  type: string
+      responses:
+        '200':
+          description: gets jwt token
+          content:
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+                    example: 'abcs#smnds232m###21mn'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /login:
+    post:
+      description: Signin in
+      tags:
+        - Authorization
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: "awesomecat@meow.com"
+                password:
+                  type: string
+      responses:
+        '200':
+          description: gets jwt token
+          content:
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+                    example: 'abcs#smnds232m###21mn'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /soft_test:
+    get:
+      summary: Получить тест по софт навыкам
+      description: Возвращает JSON с тестом по софт навыкам. Один для всех пользователей.
+      tags:
+        - /api/v1/user
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /get_soft_rate:
+    post:
+      summary: Считаем баллы по тесту
+      description: Возвращает JSON с набранными баллами.
+      tags:
+        - /api/v1/user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quiz_response'
+
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rate'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /hard_test:
+    get:
+      summary: Получить тест по хард навыкам
+      description: Возвращает JSON с тестом по хард навыкам. Тест подбирается по стэку юзера.
+      tags:
+        - /api/v1/user
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /get_hard_rate:
+    post:
+      summary: Считаем баллы по тесту
+      description: Возвращает JSON с набранными баллами.
+      tags:
+        - /api/v1/user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quiz_response'
+
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rate'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /update_data:
+    post:
+      summary: Собираем доп данные по клиенту
+      description: Сохраняем данные в бд и возвращаю id пользователя
+      tags:
+        - /api/v1/user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Data_update'
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOk'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+
+
+
+
+
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+            type: string
+    StatusOk:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'OK'
+    Test:
+      type: object
+      properties:
+        question:
+          type: string
+          description: Вопрос
+        options:
+          type: array
+          items:
+            type: string
+          description: Варианты ответов на вопрос
+        correct_answer:
+          type: integer
+          description: Индекс верного ответа
+    Quiz:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Test'
+    Test_response:
+      type: object
+      properties:
+        correct_answer:
+          type: integer
+          description: Индекс верного ответа
+        users_answer:
+          type: integer
+          description: Индекс ответа юзера
+    Quiz_response:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Test_response'
+    Rate:
+      type: object
+      properties:
+        rate:
+          type: integer
+          description: Рейтинг по тесту
+    Data_update:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя
+        surname:
+          type: string
+          description: Фамилия
+        age:
+          type: integer
+          description: Возраст
+        city:
+          type: string
+          description: Город
+        tlg_link:
+          type: string
+          description: Ссылка на телеграм
+        stack_id:
+          type: integer
+          description: id стэка из таблицы Stack
+
+
+
+security:
+  - bearerAuth: []
